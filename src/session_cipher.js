@@ -154,10 +154,6 @@ class SessionCipher {
                 errs.push(e);
             }
         }
-        console.error("Failed to decrypt message with any known session...");
-        for (const e of errs) {
-            console.error("Session error:" + e, e.stack);
-        }
         throw new errors.SessionError("No matching sessions found for message");
     }
 
@@ -179,7 +175,7 @@ class SessionCipher {
                 // was the most current.  Simply make a note of it and continue.  If our
                 // actual open session is for reason invalid, that must be handled via
                 // a full SessionError response.
-                console.warn("Decrypted message with closed session.");
+                //console.warn("Decrypted message with closed session.");
             }
             await this.storeRecord(record);
             return result.plaintext;
@@ -241,8 +237,8 @@ class SessionCipher {
                                           Buffer.from("WhisperMessageKeys"));
         const ourIdentityKey = await this.storage.getOurIdentity();
         const macInput = Buffer.alloc(messageProto.byteLength + (33 * 2) + 1);
-        macInput.set(ourIdentityKey.pubKey);
-        macInput.set(session.indexInfo.remoteIdentityKey, 33);
+        macInput.set(session.indexInfo.remoteIdentityKey);
+        macInput.set(ourIdentityKey.pubKey, 33);
         macInput[33 * 2] = this._encodeTupleByte(VERSION, VERSION);
         macInput.set(messageProto, (33 * 2) + 1);
         // This is where we most likely fail if the session is not a match.
