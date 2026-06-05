@@ -202,6 +202,11 @@ class SessionRecord {
     }
 
     static deserialize(data) {
+        if (typeof data === 'string') {
+            data = JSON.parse(data);
+        } else if (Buffer.isBuffer(data) || data instanceof Uint8Array) {
+            data = JSON.parse(Buffer.from(data).toString('utf-8'));
+        }
         if (data.version !== SESSION_RECORD_VERSION) {
             this.migrate(data);
         }
